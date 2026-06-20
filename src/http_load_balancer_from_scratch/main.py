@@ -16,55 +16,43 @@ _selection_lock = threading.Lock()
 
 def client_connection(client_socket: socket.socket) -> ConnectionSchema:
     client_ip, client_port = client_socket.getpeername()
-    return ConnectionSchema(
-        client_ip=client_ip,
-        client_port=client_port,
-        protocol="tcp"
-    )
+    return ConnectionSchema(client_ip=client_ip, client_port=client_port)
 
 def forward_request(client_socket: socket.socket, algorithm: type[BaseAlgorithm]) -> None:
-    request = client_socket.recv(BUFFER_SIZE)
-    if not request:
-        client_socket.close()
-        return
+    with client_socket:
+        request = client_socket.recv(BUFFER_SIZE)
+        if not request:
+            return
 
-    with _selection_lock:
-        connection = client_connection(client_socket)
-        target: TargetSchema = algorithm.next_target(connection)
-        target_key = target.key()
-        TargetManager.increment_connections(target_key)
+        with _selection_lock:
+            connection: ConnectionSchema = client_connection(client_socket)
+            target: TargetSchema = algorithm.next_target(connection)
+            target_key = target.key()
+            TargetManager.increment_connections(target_key)
 
-    started_at = time.perf_counter()
-    remote_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    success = False
-    logger.info(
-        "Repassando requisição para {}:{} via {}",
-        target.ip,
-        target.port,
-        algorithm.__name__,
-    )
-
-    try:
-        remote_socket.connect((target.ip, target.port))
-        remote_socket.sendall(request)
-        while True:
-            response = remote_socket.recv(BUFFER_SIZE)
-            if not response:
-                break
-            client_socket.sendall(response)
-        success = True
-    except OSError:
-        logger.exception("Falha ao repassar a requisição para {}:{}", target.ip, target.port)
-        try: client_socket.sendall(b"HTTP/1.1 502 Bad Gateway\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
-        except OSError:
-            pass
-    finally:
-        duration = time.perf_counter() - started_at
-        TargetManager.decrement_connections(target_key)
-        if success:
-            TargetManager.update_response_time(target_key, duration)
-        remote_socket.close()
-        client_socket.close()
+        started_at: float = time.perf_counter()
+        logger.info("Repassando requisição para {}:{} via {}", target.ip, target.port, algorithm.__name__)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as remote_socket:
+            try:
+                remote_socket.connect((target.ip, target.port))
+                remote_socket.sendall(request)
+                while True:
+                    response = remote_socket.recv(BUFFER_SIZE)
+                    if not response:
+                        break
+                    client_socket.sendall(response)
+            except OSError:
+                logger.exception("Falha ao repassar a requisição para {}:{}", target.ip, target.port)
+                try: client_socket.sendall(b"HTTP/1.1 502 Bad Gateway\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
+                except OSError:
+                    pass
+            else:
+                TargetManager.update_response_time(
+                    target_key=target_key,
+                    response_time=time.perf_counter() - started_at,
+                )
+            finally:
+                TargetManager.decrement_connections(target_key)
 
 def main() -> None:
     algorithm: type[BaseAlgorithm] = settings.ALGORITHM.algorithm
@@ -74,13 +62,7 @@ def main() -> None:
     server.bind((HOST, PORT))
     server.listen(10)
 
-    logger.info(
-        "Proxy rodando em {}:{} com {}",
-        HOST,
-        PORT,
-        algorithm.__name__
-    )
-
+    logger.info("Proxy rodando em {}:{} com {}", HOST, PORT, algorithm.__name__)
     while True:
         client_socket, _ = server.accept()
         threading.Thread(
