@@ -1,5 +1,5 @@
 from kubernetes import client, config
-from http_load_balancer_from_scratch.schemas.route_schema import RouteSchema
+from http_load_balancer_from_scratch.schemas.target_schema import TargetSchema
 from http_load_balancer_from_scratch.settings import settings
 
 config.load_incluster_config()
@@ -9,13 +9,13 @@ class KubernetesClient:
     __core = client.CoreV1Api()
 
     @classmethod
-    def routes(cls) -> list[RouteSchema]:
+    def targets(cls) -> list[TargetSchema]:
         pods = cls.__core.list_namespaced_pod(
             name=settings.KUBERNETES_DEPLOYMENT_NAME,
             label_selector=f"app={settings.KUBERNETES_DEPLOYMENT_APP_NAME}"
         )
 
-        routes: list[RouteSchema] = []
+        routes: list[TargetSchema] = []
         for pod in pods.items:
             if pod.status.phase != "Running":
                 continue
@@ -25,8 +25,7 @@ class KubernetesClient:
                 continue
             
             port: int = pod.spec.containers[0].ports[0].container_port
-            routes.append(RouteSchema(ip=ip, port=port))
-
+            routes.append(TargetSchema(ip=ip, port=port))
         return routes
 
     @classmethod

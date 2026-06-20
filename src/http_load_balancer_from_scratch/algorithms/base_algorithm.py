@@ -1,12 +1,17 @@
 from abc import ABC, abstractmethod
+from http_load_balancer_from_scratch.schemas.connection_schema import ConnectionSchema
+from http_load_balancer_from_scratch.schemas.target_schema import TargetSchema
 from http_load_balancer_from_scratch.core.kubernetes_client import KubernetesClient
-from http_load_balancer_from_scratch.schemas.route_schema import RouteSchema
 
 class BaseAlgorithm(ABC):
+    @classmethod
     @abstractmethod
-    def next_route(self) -> RouteSchema:
+    def next_route(cls, connection: ConnectionSchema) -> TargetSchema:
         ...
 
     @staticmethod
-    def routes() -> list[RouteSchema]:
-        return KubernetesClient.routes()
+    def routes() -> list[TargetSchema]:
+        routes: list[TargetSchema] = KubernetesClient.targets()
+        if not routes:
+            raise RuntimeError("No available routes")
+        return routes
