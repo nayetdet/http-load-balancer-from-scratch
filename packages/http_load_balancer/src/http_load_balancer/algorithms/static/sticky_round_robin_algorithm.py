@@ -11,10 +11,15 @@ class StickyRoundRobinAlgorithm(BaseAlgorithm):
     @classmethod
     def next_target(cls, connection: ConnectionSchema) -> TargetSchema:
         targets: list[TargetSchema] = TargetManager.targets()
-        signature: tuple[str, ...] = tuple(target.key() for target in targets)
+        signature: tuple[str, ...] = tuple(sorted(target.key() for target in targets))
         if signature != cls._sticky_signature:
             cls._sticky_signature = signature
-            cls._sticky_target_key_map = {}
+            valid_target_keys: set[str] = set(signature)
+            cls._sticky_target_key_map = {
+                client_key: target_key
+                for client_key, target_key in cls._sticky_target_key_map.items()
+                if target_key in valid_target_keys
+            }
 
         client_key: str = connection.client_ip
         sticky_key: str | None = cls._sticky_target_key_map.get(client_key)

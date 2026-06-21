@@ -1,11 +1,11 @@
 import yaml
 from threading import Lock
+from typing import TYPE_CHECKING
 from loguru import logger
 from http_load_balancer.algorithms.base_algorithm import BaseAlgorithm
 from http_load_balancer.core.target_stats_manager import TargetStatsManager
 from http_load_balancer.schemas.target_schema import TargetSchema
 from http_load_balancer.settings import settings
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from http_load_balancer.enums.algorithm_strategy import AlgorithmStrategy

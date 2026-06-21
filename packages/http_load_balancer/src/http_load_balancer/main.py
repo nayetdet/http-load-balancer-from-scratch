@@ -25,7 +25,7 @@ def forward_request(client_socket: socket.socket, algorithm) -> None:
         with _selection_lock:
             connection: ConnectionSchema = client_connection(client_socket)
             target: TargetSchema = algorithm.next_target(connection)
-            TargetStatsManager.increment_connections(target.key)
+            TargetStatsManager.increment_connections(target.key())
 
         started_at: float = time.perf_counter()
         logger.info("Forwarding request to {}:{} via {}", target.ip, target.port, algorithm.__name__)
@@ -45,9 +45,9 @@ def forward_request(client_socket: socket.socket, algorithm) -> None:
                 except OSError:
                     pass
             else:
-                TargetStatsManager.update_response_time(target_key=target.key, response_time=time.perf_counter() - started_at)
+                TargetStatsManager.update_response_time(target_key=target.key(), response_time=time.perf_counter() - started_at)
             finally:
-                TargetStatsManager.decrement_connections(target.key)
+                TargetStatsManager.decrement_connections(target.key())
 
 def main() -> None:
     logger.info("PID: {}", os.getpid())

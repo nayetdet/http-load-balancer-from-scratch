@@ -17,12 +17,16 @@ class WeightedRoundRobinAlgorithm(BaseAlgorithm):
             cls._sequence_signature = signature
             weighted_targets: list[TargetSchema] = []
             for target in targets:
-                weighted_targets.extend([target] * max(1, target.weight))
+                if target.weight > 0:
+                    weighted_targets.extend([target] * target.weight)
 
-            cls._sequence = weighted_targets or targets
+            if not weighted_targets:
+                raise ValueError("At least one target must have a positive weight.")
+
+            cls._sequence = weighted_targets
             cls._index = 0
 
-        sequence: list[TargetSchema] = cls._sequence or targets
+        sequence: list[TargetSchema] = cls._sequence
         index: int = cls._index % len(sequence)
         cls._index = (index + 1) % len(sequence)
         return sequence[index]
