@@ -1,7 +1,7 @@
-.PHONY: install http-load-balancer
+.PHONY: install run
 
 install:
 	uv sync --all-groups --all-packages
 
-http-load-balancer:
+run:
 	uv run python -m http_load_balancer

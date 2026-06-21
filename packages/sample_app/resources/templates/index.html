@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flask Demo</title>
+    <style>
+      body {
+          background-color: {{ color }};
+          margin: 0;
+          min-height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-family: sans-serif;
+      }
+
+      .card {
+          background: rgba(255,255,255,.9);
+          padding: 2rem;
+          border-radius: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Instance Information</h1>
+      <p><strong>UUID:</strong> {{ uuid }}</p>
+      <p>
+        <strong>Started At:</strong>
+        {{ started_at }}
+      </p>
+    </div>
+  </body>
+</html>
