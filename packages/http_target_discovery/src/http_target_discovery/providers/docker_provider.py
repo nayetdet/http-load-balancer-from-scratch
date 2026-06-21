@@ -6,11 +6,13 @@ from http_target_discovery.schemas.target_schema import TargetSchema
 
 class DockerProvider(BaseProvider):
     @classmethod
-    def targets(cls) -> list[TargetSchema]:
+    def targets(cls) -> set[TargetSchema]:
         client: DockerClient | None = None
+        targets: set[TargetSchema] = set()
         try:
             client = from_env()
-            targets: list[TargetSchema] = cls._published_targets(client) + cls._internal_targets(client)
+            targets.update(cls._internal_targets(client))
+            targets.update(cls._published_targets(client))
         except DockerException as e:
             raise RuntimeError("Failed to query Docker for targets") from e
         finally:
@@ -21,13 +23,13 @@ class DockerProvider(BaseProvider):
         return targets
 
     @classmethod
-    def _internal_targets(cls, client: DockerClient) -> list[TargetSchema]:
+    def _internal_targets(cls, client: DockerClient) -> set[TargetSchema]:
         from http_target_discovery.settings import settings
 
         if settings.target_network_strategy is DiscoveryTargetNetworkStrategy.PUBLISHED:
-            return []
+            return set()
 
-        targets: list[TargetSchema] = []
+        targets: set[TargetSchema] = set()
         for container in client.containers.list(filters={"label": settings.docker_target_label}):
             internal_ip: str | None = next(
                 (
@@ -40,7 +42,7 @@ class DockerProvider(BaseProvider):
 
             internal_port: str | None = next(iter(container.attrs.get("Config", {}).get("ExposedPorts") or {}), None)
             if internal_ip and internal_port:
-                targets.append(
+                targets.add(
                     TargetSchema(
                         ip=internal_ip,
                         port=int(internal_port.split("/")[0])
@@ -50,13 +52,13 @@ class DockerProvider(BaseProvider):
         return targets
 
     @classmethod
-    def _published_targets(cls, client: DockerClient) -> list[TargetSchema]:
+    def _published_targets(cls, client: DockerClient) -> set[TargetSchema]:
         from http_target_discovery.settings import settings
 
         if settings.target_network_strategy is DiscoveryTargetNetworkStrategy.INTERNAL:
-            return []
+            return set()
 
-        targets: list[TargetSchema] = []
+        targets: set[TargetSchema] = set()
         for container in client.containers.list(filters={"label": settings.docker_target_label}):
             for port_bindings in (container.attrs.get("NetworkSettings", {}).get("Ports") or {}).values():
                 if not port_bindings:
@@ -68,7 +70,7 @@ class DockerProvider(BaseProvider):
                     continue
 
                 published_ip: str = port_binding.get("HostIp") or "127.0.0.1"
-                targets.append(
+                targets.add(
                     TargetSchema(
                         ip="127.0.0.1" if published_ip in {"0.0.0.0", "::"} else published_ip,
                         port=int(published_port)

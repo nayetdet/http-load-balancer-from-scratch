@@ -7,7 +7,7 @@ from http_load_balancer.schemas.target_schema import TargetSchema
 class LeastConnectionsAlgorithm(BaseAlgorithm):
     @classmethod
     def next_target(cls, _: ConnectionSchema) -> TargetSchema:
-        targets: list[TargetSchema] = TargetManager.targets()
+        targets: list[TargetSchema] = list(TargetManager.targets())
         return min(
             enumerate(targets),
             key=lambda item: (TargetStatsManager.stats(item[1].key()).connections, item[0])

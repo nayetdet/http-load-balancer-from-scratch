@@ -12,13 +12,13 @@ if TYPE_CHECKING:
 
 class TargetManager:
     _lock = Lock()
-    _targets: tuple[TargetSchema, ...] = ()
+    _targets: set[TargetSchema] = set()
     _algorithm_strategy: AlgorithmStrategy | None = None
 
     @classmethod
-    def targets(cls) -> list[TargetSchema]:
+    def targets(cls) -> set[TargetSchema]:
         with cls._lock:
-            return [target.model_copy(deep=True) for target in cls._targets]
+            return {target.model_copy(deep=True) for target in cls._targets}
 
     @classmethod
     def algorithm(cls) -> type[BaseAlgorithm]:
@@ -32,9 +32,9 @@ class TargetManager:
         try:
             from http_load_balancer.schemas.target_settings_schema import TargetSettingsSchema
             target_settings: TargetSettingsSchema = TargetSettingsSchema.model_validate(yaml.safe_load(settings.settings_file_path.read_text(encoding="utf-8")) or {})
-            targets: list[TargetSchema] = [target.model_copy(deep=True) for target in target_settings.targets]
+            targets: set[TargetSchema] = {target.model_copy(deep=True) for target in target_settings.targets}
             with cls._lock:
-                cls._targets = tuple(target.model_copy(deep=True) for target in targets)
+                cls._targets = {target.model_copy(deep=True) for target in targets}
                 cls._algorithm_strategy = target_settings.algorithm_strategy
                 TargetStatsManager.reload()
         except Exception:

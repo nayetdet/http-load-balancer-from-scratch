@@ -8,7 +8,7 @@ class RoundRobinAlgorithm(BaseAlgorithm):
 
     @classmethod
     def next_target(cls, connection: ConnectionSchema) -> TargetSchema:
-        targets: list[TargetSchema] = TargetManager.targets()
+        targets: list[TargetSchema] = list(TargetManager.targets())
         index: int = cls._index % len(targets)
         cls._index = (index + 1) % len(targets)
         return targets[index]

@@ -10,7 +10,7 @@ class WeightedRoundRobinAlgorithm(BaseAlgorithm):
 
     @classmethod
     def next_target(cls, connection: ConnectionSchema) -> TargetSchema:
-        targets: list[TargetSchema] = TargetManager.targets()
+        targets: list[TargetSchema] = list(TargetManager.targets())
         signature: tuple[str, ...] = tuple(f"{target.key()}#{target.weight}" for target in targets)
 
         if signature != cls._sequence_signature:

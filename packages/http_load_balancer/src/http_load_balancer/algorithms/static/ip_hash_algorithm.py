@@ -7,7 +7,7 @@ from http_load_balancer.schemas.target_schema import TargetSchema
 class IPHashAlgorithm(BaseAlgorithm):
     @classmethod
     def next_target(cls, connection: ConnectionSchema) -> TargetSchema:
-        targets: list[TargetSchema] = TargetManager.targets()
+        targets: list[TargetSchema] = list(TargetManager.targets())
         digest: bytes = hashlib.sha256(connection.client_ip.encode("utf-8")).digest()
         index: int = int.from_bytes(digest[:8], "big") % len(targets)
         return targets[index]

@@ -10,7 +10,7 @@ class StickyRoundRobinAlgorithm(BaseAlgorithm):
 
     @classmethod
     def next_target(cls, connection: ConnectionSchema) -> TargetSchema:
-        targets: list[TargetSchema] = TargetManager.targets()
+        targets: list[TargetSchema] = list(TargetManager.targets())
         signature: tuple[str, ...] = tuple(sorted(target.key() for target in targets))
         if signature != cls._sticky_signature:
             cls._sticky_signature = signature

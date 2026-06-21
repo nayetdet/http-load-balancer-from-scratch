@@ -14,7 +14,7 @@ class KubernetesProvider(BaseProvider):
     _core: client.CoreV1Api = client.CoreV1Api()
 
     @classmethod
-    def targets(cls) -> list[TargetSchema]:
+    def targets(cls) -> set[TargetSchema]:
         from http_target_discovery.settings import settings
 
         deployment: client.V1Deployment = cls._apps.read_namespaced_deployment(
@@ -42,28 +42,22 @@ class KubernetesProvider(BaseProvider):
             )
         ]
 
-        targets: list[TargetSchema] = cls._unique_targets(
-            cls._published_targets(running_pods) + cls._internal_targets(running_pods)
-        )
+        targets: set[TargetSchema] = set()
+        targets.update(cls._internal_targets(running_pods))
+        targets.update(cls._published_targets(running_pods))
+
         if not targets:
             raise RuntimeError("No available targets")
         return targets
 
     @classmethod
-    def _unique_targets(cls, targets: list[TargetSchema]) -> list[TargetSchema]:
-        unique_targets: dict[str, TargetSchema] = {}
-        for target in targets:
-            unique_targets.setdefault(target.key(), target)
-        return list(unique_targets.values())
-
-    @classmethod
-    def _internal_targets(cls, pods: list[client.V1Pod]) -> list[TargetSchema]:
+    def _internal_targets(cls, pods: list[client.V1Pod]) -> set[TargetSchema]:
         from http_target_discovery.settings import settings
 
         if settings.target_network_strategy is DiscoveryTargetNetworkStrategy.PUBLISHED:
-            return []
+            return set()
 
-        targets: list[TargetSchema] = []
+        targets: set[TargetSchema] = set()
         for pod in pods:
             pod_ip: str | None = pod.status.pod_ip
             if not pod_ip:
@@ -75,7 +69,7 @@ class KubernetesProvider(BaseProvider):
                     if not container_port:
                         continue
 
-                    targets.append(
+                    targets.add(
                         TargetSchema(
                             ip=pod_ip,
                             port=int(container_port)
@@ -85,13 +79,13 @@ class KubernetesProvider(BaseProvider):
         return targets
 
     @classmethod
-    def _published_targets(cls, pods: list[client.V1Pod]) -> list[TargetSchema]:
+    def _published_targets(cls, pods: list[client.V1Pod]) -> set[TargetSchema]:
         from http_target_discovery.settings import settings
 
         if settings.target_network_strategy is DiscoveryTargetNetworkStrategy.INTERNAL:
-            return []
+            return set()
 
-        targets: list[TargetSchema] = []
+        targets: set[TargetSchema] = set()
         for pod in pods:
             host_ip: str | None = pod.status.host_ip
             if not host_ip:
@@ -103,7 +97,7 @@ class KubernetesProvider(BaseProvider):
                     host_port: int | None = getattr(port, "host_port", None)
                     container_port: int | None = getattr(port, "container_port", None)
                     if host_port:
-                        targets.append(
+                        targets.add(
                             TargetSchema(
                                 ip=host_ip,
                                 port=int(host_port)
@@ -115,7 +109,7 @@ class KubernetesProvider(BaseProvider):
                     if not host_network or not container_port:
                         continue
 
-                    targets.append(
+                    targets.add(
                         TargetSchema(
                             ip=host_ip,
                             port=int(container_port)
