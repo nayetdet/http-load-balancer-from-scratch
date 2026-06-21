@@ -8,8 +8,9 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
-    ROOT_PATH: Path = Path(__file__).resolve().parents[2]
-    RESOURCES_PATH: Path = ROOT_PATH / "resources"
-    TEMPLATES_PATH: Path = RESOURCES_PATH / "templates"
+    # Paths
+    root_path: Path = Path(__file__).resolve().parents[2]
+    resources_path: Path = root_path / "resources"
+    templates_path: Path = resources_path / "templates"
 
 settings = Settings()

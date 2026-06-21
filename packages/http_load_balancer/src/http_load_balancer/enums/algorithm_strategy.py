@@ -1,19 +1,13 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from http_load_balancer.algorithms.base_algorithm import BaseAlgorithm
-
-from http_load_balancer.algorithms import (
-    IPHashAlgorithm,
-    LeastConnectionsAlgorithm,
-    LeastResponseTimeAlgorithm,
-    RoundRobinAlgorithm,
-    StickyRoundRobinAlgorithm,
-    WeightedRoundRobinAlgorithm
-)
+from http_load_balancer.algorithms.base_algorithm import BaseAlgorithm
+from http_load_balancer.algorithms.dynamic.least_connections_algorithm import LeastConnectionsAlgorithm
+from http_load_balancer.algorithms.dynamic.least_response_time_algorithm import LeastResponseTimeAlgorithm
+from http_load_balancer.algorithms.static.ip_hash_algorithm import IPHashAlgorithm
+from http_load_balancer.algorithms.static.round_robin_algorithm import RoundRobinAlgorithm
+from http_load_balancer.algorithms.static.sticky_round_robin_algorithm import StickyRoundRobinAlgorithm
+from http_load_balancer.algorithms.static.weighted_round_robin_algorithm import WeightedRoundRobinAlgorithm
 
 class AlgorithmStrategy(str, Enum):
     LEAST_CONNECTIONS = ("least_connections", LeastConnectionsAlgorithm)
@@ -31,4 +25,3 @@ class AlgorithmStrategy(str, Enum):
 
     def __init__(self, name: str, algorithm: type[BaseAlgorithm]):
         self.label = name
-        self.algorithm = algorithm

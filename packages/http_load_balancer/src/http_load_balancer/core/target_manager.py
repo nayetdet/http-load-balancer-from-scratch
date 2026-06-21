@@ -1,6 +1,37 @@
-from http_load_balancer.schemas import TargetSchema
+import yaml
+from threading import Lock
+from loguru import logger
+from http_load_balancer.algorithms.base_algorithm import BaseAlgorithm
+from http_load_balancer.schemas.target_schema import TargetSchema
+from http_load_balancer.settings import settings
 
 class TargetManager:
+    _lock = Lock()
+    _targets: tuple[TargetSchema, ...] = ()
+    _algorithm_strategy: object | None = None
+
+    @classmethod
+    def reload(cls, *_: object) -> None:
+        try:
+            from http_load_balancer.schemas.target_settings_schema import TargetSettingsSchema
+            target_settings: TargetSettingsSchema = TargetSettingsSchema.model_validate(yaml.safe_load(settings.settings_file_path.read_text(encoding="utf-8")) or {})
+            targets: list[TargetSchema] = [target.model_copy(deep=True) for target in target_settings.targets]
+            with cls._lock:
+                cls._targets = tuple(target.model_copy(deep=True) for target in targets)
+                cls._algorithm_strategy = target_settings.algorithm_strategy
+        except Exception:
+            logger.exception("Failed to reload target settings from {}", settings.settings_file_path)
+        else:
+            logger.info("Target settings reloaded from {}", settings.settings_file_path)
+
     @classmethod
     def targets(cls) -> list[TargetSchema]:
-        return []
+        with cls._lock:
+            return [target.model_copy(deep=True) for target in cls._targets]
+
+    @classmethod
+    def algorithm(cls) -> type[BaseAlgorithm]:
+        with cls._lock:
+            if cls._algorithm_strategy is None:
+                raise RuntimeError("TargetManager.reload() must run before algorithm lookup")
+            return cls._algorithm_strategy.algorithm

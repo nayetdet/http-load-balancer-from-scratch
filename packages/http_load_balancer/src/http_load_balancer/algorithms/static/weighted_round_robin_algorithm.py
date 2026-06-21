@@ -1,5 +1,7 @@
 from http_load_balancer.algorithms.base_algorithm import BaseAlgorithm
-from http_load_balancer.schemas import ConnectionSchema, TargetSchema
+from http_load_balancer.core.target_manager import TargetManager
+from http_load_balancer.schemas.connection_schema import ConnectionSchema
+from http_load_balancer.schemas.target_schema import TargetSchema
 
 class WeightedRoundRobinAlgorithm(BaseAlgorithm):
     _index: int = 0
@@ -8,7 +10,7 @@ class WeightedRoundRobinAlgorithm(BaseAlgorithm):
 
     @classmethod
     def next_target(cls, connection: ConnectionSchema) -> TargetSchema:
-        targets: list[TargetSchema] = cls.targets()
+        targets: list[TargetSchema] = TargetManager.targets()
         signature: tuple[str, ...] = tuple(f"{target.key()}#{target.weight}" for target in targets)
 
         if signature != cls._sequence_signature:
