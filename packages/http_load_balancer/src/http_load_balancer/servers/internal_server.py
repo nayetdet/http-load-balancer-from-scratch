@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import socket
+import yaml
 from http import HTTPMethod, HTTPStatus
 from http_load_balancer.core.target_manager import TargetManager
 from http_load_balancer.schemas.target_settings_schema import TargetSettingsSchema
@@ -34,7 +35,10 @@ class InternalServer(BaseServer):
             client_socket.sendall(HTTPUtils.empty_response(HTTPStatus.BAD_REQUEST))
             return
 
-        TargetManager.reload(payload)
+        current_settings = TargetSettingsSchema.model_validate(
+            yaml.safe_load(settings.settings_file_path.read_text(encoding="utf-8")) or {}
+        )
+        TargetManager.reload(current_settings.model_copy(update={"targets": payload.targets}))
         client_socket.sendall(HTTPUtils.empty_response(HTTPStatus.OK))
 
     @http_handler()

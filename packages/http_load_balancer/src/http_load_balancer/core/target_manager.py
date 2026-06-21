@@ -33,14 +33,19 @@ class TargetManager:
     @classmethod
     def reload(cls, payload: TargetSettingsSchema | None = None) -> None:
         try:
+            from pathlib import Path
+            from http_load_balancer.schemas.target_settings_schema import TargetSettingsSchema
+
             if payload is None:
-                from http_load_balancer.schemas.target_settings_schema import TargetSettingsSchema
                 target_settings: TargetSettingsSchema = TargetSettingsSchema.model_validate(yaml.safe_load(settings.settings_file_path.read_text(encoding="utf-8")) or {})
-                targets: set[TargetSchema] = {target.model_copy(deep=True) for target in target_settings.targets}
-                algorithm_strategy = target_settings.algorithm_strategy
             else:
-                targets = {target.model_copy(deep=True) for target in payload.targets}
-                algorithm_strategy = None
+                target_settings = payload
+                tmp_path: Path = settings.settings_file_path.with_suffix(".yaml.tmp")
+                tmp_path.write_text(yaml.safe_dump(target_settings.model_dump(mode="json"), sort_keys=False), encoding="utf-8")
+                tmp_path.replace(settings.settings_file_path)
+
+            targets: set[TargetSchema] = {target.model_copy(deep=True) for target in target_settings.targets}
+            algorithm_strategy = target_settings.algorithm_strategy
 
             with cls._lock:
                 cls._targets = {target.model_copy(deep=True) for target in targets}
