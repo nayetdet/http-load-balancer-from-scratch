@@ -2,7 +2,12 @@ from flask import Flask, render_template
 from sample_app.runtime import instance_id, background_color, started_at
 from sample_app.settings import settings
 
-app = Flask(__name__, template_folder=str(settings.templates_path))
+app = Flask(
+    __name__,
+    template_folder=str(settings.resources_templates_path),
+    static_folder=str(settings.resources_static_path),
+    static_url_path="/static"
+)
 
 @app.route("/")
 def index():

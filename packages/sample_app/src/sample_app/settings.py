@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     # Paths
     root_path: Path = Path(__file__).resolve().parents[2]
     resources_path: Path = root_path / "resources"
-    templates_path: Path = resources_path / "templates"
+    resources_static_path: Path = resources_path / "static"
+    resources_static_css_path: Path = resources_static_path / "css"
+    resources_templates_path: Path = resources_path / "templates"
 
 settings = Settings()
