@@ -26,3 +26,8 @@ class TargetStatsManager:
     def update_response_time(cls, target_key: str, response_time: float) -> None:
         with cls._lock:
             cls._stats[target_key].response_time = response_time
+
+    @classmethod
+    def reload(cls) -> None:
+        with cls._lock:
+            cls._stats = defaultdict(TargetStatsSchema)
