@@ -1,6 +1,6 @@
 services:
   sample-app:
-    image: ghcr.io/nayetdet/http-load-balancer:sample-app
+    image: ghcr.io/nayetdet/http-load-balancer-from-scratch:sample-app
     pull_policy: always
     labels:
       http-load-balancer.target: "true"

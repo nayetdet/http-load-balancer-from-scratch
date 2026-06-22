@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-target-discovery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: http-target-discovery
+  template:
+    metadata:
+      labels:
+        app: http-target-discovery
+    spec:
+      containers:
+        - name: http-target-discovery
+          image: ghcr.io/nayetdet/http-load-balancer-from-scratch:http-target-discovery
+          env:
+            - name: DISCOVERY_PROVIDER_STRATEGY
+              value: kubernetes
+            - name: DISCOVERY_TARGET_NETWORK_STRATEGY
+              value: internal
+            - name: DISCOVERY_LB_RELOAD_URL
+              value: http://http-load-balancer-internal:9090/reload
+            - name: DISCOVERY_KUBERNETES_DEPLOYMENT_NAME
+              value: sample-app

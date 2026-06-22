@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     # Discovery
     provider_strategy: DiscoveryProviderStrategy = DiscoveryProviderStrategy.DOCKER
     target_network_strategy: DiscoveryTargetNetworkStrategy = DiscoveryTargetNetworkStrategy.PUBLISHED
-    poll_interval_seconds: float = 15
+    poll_interval_seconds: float = 5
     request_timeout_seconds: float = 5
 
     # Load Balancer

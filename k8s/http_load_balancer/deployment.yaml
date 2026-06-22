@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-load-balancer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: http-load-balancer
+  template:
+    metadata:
+      labels:
+        app: http-load-balancer
+    spec:
+      containers:
+        - name: http-load-balancer
+          image: ghcr.io/nayetdet/http-load-balancer-from-scratch:latest
+          env:
+            - name: LB_PROXY_HOST
+              value: 0.0.0.0
+            - name: LB_INTERNAL_HOST
+              value: 0.0.0.0
+          volumeMounts:
+            - name: targets
+              mountPath: /app/packages/http_load_balancer/settings
+          ports:
+            - containerPort: 8080
+            - containerPort: 9090
+      volumes:
+        - name: targets
+          configMap:
+            name: http-load-balancer-targets

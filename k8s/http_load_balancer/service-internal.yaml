@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-load-balancer-internal
+spec:
+  type: ClusterIP
+  selector:
+    app: http-load-balancer
+  ports:
+    - name: internal
+      port: 9090
+      targetPort: 9090

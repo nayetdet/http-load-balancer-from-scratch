@@ -1,2 +1,4 @@
 resources:
-  - deployment.yaml
+  - http_load_balancer/
+  - http_target_discovery/
+  - sample_app/

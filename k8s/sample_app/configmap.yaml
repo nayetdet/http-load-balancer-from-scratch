@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: http-load-balancer-targets
+data:
+  targets.yaml: |
+    version: 1
+    algorithm_strategy: round_robin
+    targets: []
