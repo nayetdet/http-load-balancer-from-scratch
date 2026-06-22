@@ -7,7 +7,6 @@ from loguru import logger
 from http_load_balancer.algorithms.base_algorithm import BaseAlgorithm
 from http_load_balancer.core.target_stats_manager import TargetStatsManager
 from http_load_balancer.schemas.target_schema import TargetSchema
-from http_load_balancer.settings import settings
 
 if TYPE_CHECKING:
     from http_load_balancer.enums.algorithm_strategy import AlgorithmStrategy
@@ -34,6 +33,7 @@ class TargetManager:
     @classmethod
     def reload(cls, payload: TargetSettingsSchema | None = None, *_: object) -> None:
         try:
+            from http_load_balancer.settings import settings
             from http_load_balancer.schemas.target_settings_schema import TargetSettingsSchema
             target_settings = TargetSettingsSchema.model_validate(yaml.safe_load(settings.settings_file_path.read_text(encoding="utf-8")) or {})
             if isinstance(payload, TargetSettingsSchema):

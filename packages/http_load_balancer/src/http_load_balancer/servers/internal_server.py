@@ -13,7 +13,7 @@ from http_load_balancer.settings import settings
 class InternalServer(BaseServer):
     def __init__(
         self,
-        host: str = settings.internal_host,
+        host: str = settings.host,
         port: int = settings.internal_port,
         backlog: int = settings.backlog,
         buffer_size: int = settings.buffer_size

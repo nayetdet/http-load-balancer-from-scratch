@@ -14,8 +14,8 @@ def main() -> None:
     proxy_server = ProxyServer()
     internal_server = InternalServer()
 
-    logger.info("Proxy running on {}:{} with {}", settings.proxy_host, settings.proxy_port, TargetManager.algorithm().__name__)
-    logger.info("Internal server running on {}:{}", settings.internal_host, settings.internal_port)
+    logger.info("Proxy running on {}:{} with {}", settings.host, settings.proxy_port, TargetManager.algorithm().__name__)
+    logger.info("Internal server running on {}:{}", settings.host, settings.internal_port)
 
     internal_server.serve()
     proxy_server.serve().join()

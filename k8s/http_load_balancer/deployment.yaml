@@ -16,18 +16,6 @@ spec:
         - name: http-load-balancer
           image: ghcr.io/nayetdet/http-load-balancer:latest
           imagePullPolicy: Always
-          env:
-            - name: LB_PROXY_HOST
-              value: 0.0.0.0
-            - name: LB_INTERNAL_HOST
-              value: 0.0.0.0
-          volumeMounts:
-            - name: targets-config
-              mountPath: /app/packages/http_load_balancer/settings
           ports:
             - containerPort: 8080
             - containerPort: 9090
-      volumes:
-        - name: targets-config
-          configMap:
-            name: http-load-balancer-targets

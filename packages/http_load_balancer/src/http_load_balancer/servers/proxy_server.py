@@ -20,10 +20,10 @@ _selection_lock = threading.Lock()
 class ProxyServer(BaseServer):
     def __init__(
         self,
-        host: str = settings.proxy_host,
+        host: str = settings.host,
         port: int = settings.proxy_port,
         backlog: int = settings.backlog,
-        buffer_size: int = settings.buffer_size,
+        buffer_size: int = settings.buffer_size
     ) -> None:
         super().__init__(
             host=host,

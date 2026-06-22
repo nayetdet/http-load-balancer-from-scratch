@@ -9,7 +9,7 @@ from http_load_balancer.utils.http_utils import HTTPUtils
 class BaseServer:
     def __init__(
         self,
-        host: str = settings.proxy_host,
+        host: str = settings.host,
         port: int = settings.proxy_port,
         backlog: int = settings.backlog,
         buffer_size: int = settings.buffer_size
@@ -18,7 +18,7 @@ class BaseServer:
         self._port = port
         self._backlog = backlog
         self._buffer_size = buffer_size
-        self._handlers: list[Handler] = self._load_handlers()
+        self._handlers: list[Handler] = self._setup_handlers()
 
     def serve(self) -> threading.Thread:
         def run() -> None:
@@ -38,7 +38,7 @@ class BaseServer:
         thread.start()
         return thread
 
-    def _load_handlers(self) -> list[Handler]:
+    def _setup_handlers(self) -> list[Handler]:
         handlers: list[Handler] = []
         handler_names: set[str] = set()
         for cls in reversed(type(self).__mro__):
