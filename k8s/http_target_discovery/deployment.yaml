@@ -25,3 +25,5 @@ spec:
               value: http://http-load-balancer-internal:9090/reload
             - name: DISCOVERY_KUBERNETES_DEPLOYMENT_NAME
               value: sample-app
+            - name: DISCOVERY_KUBERNETES_DEPLOYMENT_APP_NAME
+              value: sample-app
