@@ -9,6 +9,10 @@ app = Flask(
     static_url_path="/static"
 )
 
+@app.route("/health")
+def health():
+    return "", 204
+
 @app.route("/")
 def index():
     return render_template(

@@ -40,6 +40,10 @@ class KubernetesProvider(BaseProvider):
                 owner.kind == "ReplicaSet" and owner.uid in replica_set_uids
                 for owner in pod.metadata.owner_references or []
             )
+            and any(
+                condition.type == "Ready" and condition.status == "True"
+                for condition in pod.status.conditions or []
+            )
         ]
 
         targets: set[TargetSchema] = set()
