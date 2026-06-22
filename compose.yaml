@@ -4,5 +4,7 @@ services:
     pull_policy: always
     labels:
       http-load-balancer.target: "true"
+    deploy:
+      replicas: 3
     ports:
       - "3000"
