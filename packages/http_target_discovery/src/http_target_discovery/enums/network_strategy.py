@@ -1,6 +1,6 @@
 from enum import Enum
 
-class DiscoveryTargetNetworkStrategy(str, Enum):
+class NetworkStrategy(str, Enum):
     PUBLISHED = "published"
     INTERNAL = "internal"
     BOTH = "both"

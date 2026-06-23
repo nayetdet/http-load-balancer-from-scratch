@@ -5,10 +5,15 @@ from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime, timezone
 from loguru import logger
 from http_target_discovery.core.syncronization_manager import SynchronizationManager
+from http_target_discovery.enums.provider_strategy import ProviderStrategy
 from http_target_discovery.providers.base_provider import BaseProvider
 from http_target_discovery.settings import settings
 
 def main() -> None:
+    if settings.provider_strategy == ProviderStrategy.KUBERNETES:
+        from http_target_discovery.providers.kubernetes_provider import load_kubernetes
+        load_kubernetes()
+
     logger.info(
         "Watching {} targets every {}s and reloading {}",
         settings.provider_strategy.label,

@@ -19,7 +19,7 @@ spec:
           env:
             - name: DISCOVERY_PROVIDER_STRATEGY
               value: kubernetes
-            - name: DISCOVERY_TARGET_NETWORK_STRATEGY
+            - name: DISCOVERY_NETWORK_STRATEGY
               value: internal
             - name: DISCOVERY_LB_TARGETS_URL
               value: http://http-load-balancer-internal:9090/targets

@@ -3,7 +3,7 @@ from http_target_discovery.providers.base_provider import BaseProvider
 from http_target_discovery.providers.docker_provider import DockerProvider
 from http_target_discovery.providers.kubernetes_provider import KubernetesProvider
 
-class DiscoveryProviderStrategy(str, Enum):
+class ProviderStrategy(str, Enum):
     DOCKER = ("docker", DockerProvider)
     KUBERNETES = ("kubernetes", KubernetesProvider)
 

@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from http_target_discovery.enums.discovery_provider_strategy import DiscoveryProviderStrategy
-from http_target_discovery.enums.discovery_target_network_strategy import DiscoveryTargetNetworkStrategy
+from http_target_discovery.enums.provider_strategy import ProviderStrategy
+from http_target_discovery.enums.network_strategy import NetworkStrategy
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -11,8 +11,8 @@ class Settings(BaseSettings):
     )
 
     # Discovery
-    provider_strategy: DiscoveryProviderStrategy = DiscoveryProviderStrategy.DOCKER
-    target_network_strategy: DiscoveryTargetNetworkStrategy = DiscoveryTargetNetworkStrategy.PUBLISHED
+    provider_strategy: ProviderStrategy = ProviderStrategy.DOCKER
+    network_strategy: NetworkStrategy = NetworkStrategy.PUBLISHED
     poll_interval_seconds: float = 5
     request_timeout_seconds: float = 5
 

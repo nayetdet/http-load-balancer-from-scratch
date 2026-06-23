@@ -1,6 +1,6 @@
 from docker import DockerClient, from_env
 from docker.errors import DockerException
-from http_target_discovery.enums.discovery_target_network_strategy import DiscoveryTargetNetworkStrategy
+from http_target_discovery.enums.network_strategy import NetworkStrategy
 from http_target_discovery.providers.base_provider import BaseProvider
 from http_target_discovery.schemas.target_schema import TargetSchema
 
@@ -24,7 +24,7 @@ class DockerProvider(BaseProvider):
     def _internal_targets(cls, client: DockerClient) -> set[TargetSchema]:
         from http_target_discovery.settings import settings
 
-        if settings.target_network_strategy is DiscoveryTargetNetworkStrategy.PUBLISHED:
+        if settings.network_strategy is NetworkStrategy.PUBLISHED:
             return set()
 
         targets: set[TargetSchema] = set()
@@ -58,7 +58,7 @@ class DockerProvider(BaseProvider):
     def _published_targets(cls, client: DockerClient) -> set[TargetSchema]:
         from http_target_discovery.settings import settings
 
-        if settings.target_network_strategy is DiscoveryTargetNetworkStrategy.INTERNAL:
+        if settings.network_strategy is NetworkStrategy.INTERNAL:
             return set()
 
         targets: set[TargetSchema] = set()

@@ -1,13 +1,14 @@
 from kubernetes import client, config
 from kubernetes.config.config_exception import ConfigException
 from http_target_discovery.providers.base_provider import BaseProvider
-from http_target_discovery.enums.discovery_target_network_strategy import DiscoveryTargetNetworkStrategy
+from http_target_discovery.enums.network_strategy import NetworkStrategy
 from http_target_discovery.schemas.target_schema import TargetSchema
 
-try:
-    config.load_incluster_config()
-except ConfigException:
-    config.load_kube_config()
+def load_kubernetes() -> None:
+    try:
+        config.load_incluster_config()
+    except ConfigException:
+        config.load_kube_config()
 
 class KubernetesProvider(BaseProvider):
     _apps: client.AppsV1Api = client.AppsV1Api()
@@ -55,7 +56,7 @@ class KubernetesProvider(BaseProvider):
     def _internal_targets(cls, pods: list[client.V1Pod]) -> set[TargetSchema]:
         from http_target_discovery.settings import settings
 
-        if settings.target_network_strategy is DiscoveryTargetNetworkStrategy.PUBLISHED:
+        if settings.network_strategy is NetworkStrategy.PUBLISHED:
             return set()
 
         targets: set[TargetSchema] = set()
@@ -83,7 +84,7 @@ class KubernetesProvider(BaseProvider):
     def _published_targets(cls, pods: list[client.V1Pod]) -> set[TargetSchema]:
         from http_target_discovery.settings import settings
 
-        if settings.target_network_strategy is DiscoveryTargetNetworkStrategy.INTERNAL:
+        if settings.network_strategy is NetworkStrategy.INTERNAL:
             return set()
 
         targets: set[TargetSchema] = set()
