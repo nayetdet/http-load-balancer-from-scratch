@@ -52,9 +52,12 @@ class ProxyServer(BaseServer):
                 return
 
             TargetStatsManager.increment_connections(target.key())
+            
 
         started_at: float = time.perf_counter()
         logger.info("Forwarding request to {}:{} via {}", target.ip, target.port, algorithm.__name__)
+        if algorithm.__name__ == "LeastConnectionsAlgorithm":
+            logger.info("Target {}:{} now has {} connections", target.ip, target.port, TargetStatsManager.stats(target.key()).connections)
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as remote_socket:
             try:
@@ -75,3 +78,5 @@ class ProxyServer(BaseServer):
                 TargetStatsManager.update_response_time(target_key=target.key(), response_time=time.perf_counter() - started_at,)
             finally:
                 TargetStatsManager.decrement_connections(target.key())
+                if algorithm.__name__ == "LeastConnectionsAlgorithm":
+                    logger.info("Target {}:{} now has {} connections", target.ip, target.port, TargetStatsManager.stats(target.key()).connections)
