@@ -21,6 +21,8 @@ spec:
               value: kubernetes
             - name: DISCOVERY_TARGET_NETWORK_STRATEGY
               value: internal
+            - name: DISCOVERY_LB_SETTINGS_URL
+              value: http://http-load-balancer-internal:9090/settings
             - name: DISCOVERY_LB_RELOAD_URL
               value: http://http-load-balancer-internal:9090/reload
             - name: DISCOVERY_KUBERNETES_DEPLOYMENT_NAME

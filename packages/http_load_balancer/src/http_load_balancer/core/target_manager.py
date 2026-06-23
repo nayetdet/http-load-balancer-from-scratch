@@ -47,7 +47,7 @@ class TargetManager:
 
                 settings.settings_file_path.write_text(
                     yaml.safe_dump(target_settings.model_dump(mode="json"), sort_keys=False),
-                    encoding="utf-8",
+                    encoding="utf-8"
                 )
 
             with cls._lock:
