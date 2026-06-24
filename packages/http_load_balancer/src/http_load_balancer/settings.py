@@ -31,8 +31,16 @@ class Settings(BaseSettings):
     def setup_paths(self) -> Self:
         self.settings_path.mkdir(parents=True, exist_ok=True)
         if not self.settings_file_path.exists():
-            from http_load_balancer.schemas.routing_schema import RoutingSchema
-            self.settings_file_path.write_text(yaml.safe_dump(RoutingSchema().model_dump(mode="json"), sort_keys=False), encoding="utf-8")
+            default_routing = {
+                "version": 1,
+                "algorithm_strategy": "round_robin",
+                "targets": []
+            }
+
+            self.settings_file_path.write_text(
+                yaml.safe_dump(default_routing, sort_keys=False),
+                encoding="utf-8"
+            )
         return self
 
 settings = Settings()
