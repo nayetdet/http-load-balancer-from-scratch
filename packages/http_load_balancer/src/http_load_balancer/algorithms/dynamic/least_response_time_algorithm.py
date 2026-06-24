@@ -6,7 +6,7 @@ from http_load_balancer.schemas.target_schema import TargetSchema
 
 class LeastResponseTimeAlgorithm(BaseAlgorithm):
     @classmethod
-    def next_target(cls, _: ConnectionSchema) -> TargetSchema:
+    def next_target(cls, connection: ConnectionSchema) -> TargetSchema:
         targets: list[TargetSchema] = list(TargetManager.targets())
         return min(
             enumerate(targets),

@@ -1,5 +1,5 @@
 import time
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from sample_app.runtime import instance_id, background_color, started_at
 from sample_app.settings import settings
 
@@ -11,15 +11,10 @@ def health():
 
 @app.route("/info")
 def info():
-    return {
-        "instance_id": str(instance_id),
-        "background_color": background_color,
-        "started_at": started_at.astimezone().isoformat()
-    }
+    delay: float = float(request.args.get("delay", 0))
+    if delay > 0:
+        time.sleep(delay)
 
-@app.route("/info/delay")
-def info_delay():
-    time.sleep(10)
     return {
         "instance_id": str(instance_id),
         "background_color": background_color,
